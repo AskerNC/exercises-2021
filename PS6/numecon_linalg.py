@@ -183,7 +183,7 @@ def lu_decomposition(A):
         U (ndarray): upper triangular matrix
 
     """
-    
+    print('hey')
     n = len(A)
 
     # a. create zero matrices for L and U                                                                                                                                                                                                                 
@@ -195,7 +195,7 @@ def lu_decomposition(A):
     
     # c. perform the LU Decomposition                                                                                                                                                                                                                     
     for j in range(n):          
-
+        
         for i in range(j+1):
             c = U[:,j]@L[i,:]
             U[i][j] = A[i][j] - c

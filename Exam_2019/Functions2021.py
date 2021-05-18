@@ -1,5 +1,6 @@
 # Plotting specific imports:
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 import ipywidgets as widgets
 from IPython.display import display
@@ -15,7 +16,7 @@ def plot(x_name,y_names,  x_array, y_arrays,y_axis, title='Figure',
     '''
     Makes lineplots of the arrays using matplotlib
 
-    Args:
+    Args: 
             x_name(string)  : Name of x-axis
             y_names (list)  : Containing strings with the names of the lineplots
             x_array(array)  : Data for x-variable
@@ -36,14 +37,12 @@ def plot(x_name,y_names,  x_array, y_arrays,y_axis, title='Figure',
 
     if not y_colors:
         y_colors = [None for i in range(len(y_names))]
-        jupyter lab
+        
     for y_array,y_name,y_color in zip(y_arrays,y_names,y_colors):
         ax.plot(x_array,y_array,label=y_name,color=y_color)
     
 
     ax.legend(loc=legendlocation)
-
-
 
     #settings:
     ax.set_title(title)
@@ -59,59 +58,106 @@ def plot(x_name,y_names,  x_array, y_arrays,y_axis, title='Figure',
         ax.yaxis.set_major_formatter(formatter[3])
         
 
-
-
     return fig, ax
-'''    
-def plot_hist(hist, edges, names=[''],tools="pan,wheel_zoom,box_zoom,reset,save",
-             plot_range = False,x_label='x',y_label='y',title='Figure',
-             alpha=0.5,legendlocation='top_right',width=500,height=500,
-             fill_colors=['blue'],line_colors=['purple']):
+
+def plot_hist(arrays,names=['first'],
+             x_label='x',y_label='Density',title='Figure',
+             alpha=0.5,legendlocation='best',figsize=(8,6),bins=50,
+             colors=None,grid=True,density=True):
     '''
-    Plots a histogram using bokeh, the data is most easily be prepared using np.histogram()
-    before being inputted into this function. 
-    
-    Args:
-            hist  (list)        : Containing arrays with distribution of the data
-            edges (list)        : Containing array with x-axis bins-location-data
-            names (list)        : With names for the histograms if muliple are plotted
-            tools (string)      : Bokeh tools
-            plot_range(list)    : If you wish to decide the range of the x-axis, 
-                this argument can be called as a list with: [min,max]
-            x_label(string)     : Label of the x-axis
-            y_label(string)     : Label of the y-axis
-            title(string)       : Title of the figure
-            fill_colors(list)   : Color(s) to fill the histogram(s), hex-color-code is also accepted
-            line_colors(list)   : Color(s) in the line surrounding the histogram(s)
+    Makes histograms of the arrays using matplotlib
+
+    Args: 
+            arrays (list)   : list of arrays to be plotted 
+            names (list)    : Containing strings for labels
+            x_label (string): X-axis-label name
+            y_label (string): Y-axis-label name (default is density)
+            title (string)  : Figure title
+            alpha (float)   : transpancy of histogram plot
+            legendlocation(string): location of legend
+            figsize (tuple) : Figure size
+            bins (int)      : Number of bins plotted
+            collors(list)   : list of colors for the plots (if None, the colors are default)
+            grid (bool)     : Whether to plot with grid
+            density (bool)  : Whether to plot density or frequency
     
     Returns:
-            p (bokeh.plotting.figure.Figure): The figure, which has to be called 
-                in the bokeh.plotting comand, show(), to be viewed
-    
-
+            fig, ax         : matplotlib figure objects
     '''
-    p = figure(title=title, tools=tools, x_axis_label=x_label, 
-               y_axis_label=y_label,plot_width=width, plot_height=height)
+
+
+    fig, ax = plt.subplots(figsize=figsize)
+    if not colors:
+        colors = [None for i in range(len(names))]
+        
+    for array,name,color in zip(arrays,names,colors):
+        ax.hist(array,label=name,color=color,bins=bins,alpha=alpha,density=density)
     
+    ax.legend(loc=legendlocation)
+
+    #settings:
+    ax.set_title(title)
+    ax.grid(grid)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
     
-    for h,e,name,fill_color,line_color in zip(hist,edges,names,fill_colors,line_colors):
-        p.quad(top=h, bottom=0, left=e[:-1], right=e[1:],
-               fill_color=fill_color, line_color=line_color, alpha=alpha,
-              legend=name)
+    return fig, ax
+
+def plot_3d(x_grid,y_grid,z_grid,xlabel=r'$p_1$',ylabel=r'$p_2$',zlabel='Excess demand',
+            cmap=mpl.cm.jet,figsize=(10,6),title='figure',fig=None, ax=None,alpha=0.9,color=None):
     
-    p.y_range.start=0
-    if plot_range == False:
-        p.x_range.start = edges[0][0]
-        p.x_range.end = edges[0][-1]
-    else:
-        p.x_range.start = plot_range[0]
-        p.x_range.end = plot_range[-1]
+    '''
+    Make surface 3d plots 
+
+    Args: 
+            arrays (list)   : list of arrays to be plotted 
+            names (list)    : Containing strings for labels
+            x_label (string): X-axis-label name
+            y_label (string): Y-axis-label name (default is density)
+            title (string)  : Figure title
+            alpha (float)   : transpancy of histogram plot
+            legendlocation(string): location of legend
+            figsize (tuple) : Figure size
+            bins (int)      : Number of bins plotted
+            collors(list)   : list of colors for the plots (if None, the colors are default)
+            grid (bool)     : Whether to plot with grid
+            density (bool)  : Whether to plot density or frequency
+            fig, ax         : matplotlib figure objects. If None, the function will make up its own
+                                
     
-    if names != ['']:
-        p.legend.location = legendlocation
+    Returns:
+            fig, ax         : matplotlib figure objects
+    '''
+
+    zero_surface = False
     
-    return p
-'''
+    if fig is None:
+        fig = plt.figure(figsize = figsize)
+        ax = fig.add_subplot(1,1,1,projection='3d')
+        zero_surface = True
+
+    
+    # plot 
+    ax.plot_surface(x_grid,y_grid,z_grid,cmap=cmap,color=color,alpha=alpha)
+
+    if zero_surface:
+        # Plot a surface around zero
+        zeroes_surface = np.zeros(x_grid.shape)
+        ax.plot_surface(x_grid,y_grid,zeroes_surface,color='black',alpha=0.5)
+        
+
+    # Title options 
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_zlabel(zlabel)
+    #ax.invert_xaxis()
+    fig.tight_layout()
+
+    return fig, ax
+
+
+
 
 
 
@@ -212,7 +258,7 @@ def s_pers(s_t1,c_t,par):
 
 
 ## 3. Exchange economy ##
-'''
+
 def utility(x1,x2,x3,beta1,beta2,beta3, gamma):
     utility = (x1**beta1*x2**beta2*x3**beta3)**gamma
     
@@ -292,4 +338,73 @@ def utility_distribution(x1s,x2s,x3s,x1s_equal,x2s_equal,x3s_equal,betas,gamma,p
 
 
 
-'''
+
+
+## Optimized functions
+from numba import njit
+
+@njit
+def I(p,es):
+    return p@es
+
+
+@njit
+def demand(p,es,betas):
+    return (betas.T*I(p,es)).T/p
+
+@njit
+def excess_demand(p,es,betas):
+    total_demand = np.sum(demand(p,es,betas),axis=0)
+    supply = np.sum(es,axis=1)
+    
+    return total_demand-supply
+
+
+@njit
+def fill_excesss_demand(es,betas,p1s,p2s,p3,excess_demands,precision):
+    # Calculate excess demand in all instances
+    for i in range(precision):
+        for j in range(precision):
+            p = np.array([p1s[i,j],p2s[i,j],p3])
+            excess_demands_i = excess_demand(p,es,betas)
+            for k in range(3):
+                excess_demands[k][i,j] = excess_demands_i[k]
+
+
+
+## This function can't be uptimized because np.meshgrid is not suported
+def prep_excess_d_plot(p1_bounds,p2_bounds,es,betas, precision=50):
+    '''
+    Prepares surface plot of excess demand   
+    
+    Args:
+        p1_bounds (tuple)            : upper and lower bound of p1 range
+        p2_bounds (tuple)            : upper and lower bound of p2 range
+        e (array)                    : Endowments for agents in the model
+        betas (array)                : Budget shares spend on each good for agents in the model
+        precision (int)              : Precision for the plotted grid 
+        
+    Returns
+        p1s (array)                  : Price of good 1 grid
+        p2s (array)                  : Price of good 2 grid
+        excess_demands (array)       : grid for calculated excess demand
+    
+    
+    '''
+    # Setting p3 numeria 
+    p3 = 1
+    
+    # Initating gridspace
+    p1_space = np.linspace(p1_bounds[0],p1_bounds[1],precision)
+    p2_space = np.linspace(p2_bounds[0],p2_bounds[1],precision)
+    p1s,p2s = np.meshgrid(p1_space,p2_space,indexing='ij')
+    excess_demands = np.array([np.empty((precision,precision)),np.empty((precision,precision)),np.empty((precision,precision))])
+
+
+
+    #Call njit optimized function
+    fill_excesss_demand(es,betas,p1s,p2s,p3,excess_demands,precision)
+                
+    return p1s,p2s,excess_demands
+
+

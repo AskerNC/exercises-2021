@@ -2,8 +2,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-import ipywidgets as widgets
-from IPython.display import display
 import numpy as np
 
 

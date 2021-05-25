@@ -6,6 +6,9 @@ import numpy as np
 
 
 
+
+
+
 ##  Plotting ##
 def plot(x_name,y_names,  x_array, y_arrays,y_axis, title='Figure',
                 legendlocation="best", y_colors=None,
@@ -35,7 +38,8 @@ def plot(x_name,y_names,  x_array, y_arrays,y_axis, title='Figure',
 
     if not y_colors:
         y_colors = [None for i in range(len(y_names))]
-        
+    
+
     for y_array,y_name,y_color in zip(y_arrays,y_names,y_colors):
         ax.plot(x_array,y_array,label=y_name,color=y_color)
     
@@ -153,8 +157,6 @@ def plot_3d(x_grid,y_grid,z_grid,xlabel=r'$p_1$',ylabel=r'$p_2$',zlabel='Excess 
     fig.tight_layout()
 
     return fig, ax
-
-
 
 
 
